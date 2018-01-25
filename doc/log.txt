@@ -1,0 +1,32 @@
+This is a Log which keeps track of our meetings and progress in general.
+
+Template:
+
+***************BEGIN******************
+Date: weekday. Mon Day, 2018.
+
+Topic:
+
+Summary:
+
+****************END*******************
+
+
+
+***************BEGIN******************
+Tue. Jan 23, 2018.
+
+Topic: Brainstorming ideas for the project language.
+
+Summary: We discussed potential ideas for the language we will be creating:
+1. A "graph" language that fascilitates handling of graph data structure.
+2. A "mechanics" language that helps calculation in terms of mechanical physics.
+3. A form processing/generating language that makes it easy to generate a form(for things like
+survey), and process the statistics contained within a form.
+
+Now everything really sounds just like extra libraries, we are trying to come up with something that
+can qualify our project as a new "language"; also, a general-purpose langauge seems way too complex,
+and we will probably focus on DSL.
+
+****************END*******************
+
