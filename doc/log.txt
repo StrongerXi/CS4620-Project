@@ -3,7 +3,7 @@ This is a Log which keeps track of our meetings and progress in general.
 Template:
 
 ***************BEGIN******************
-Date: weekday. Mon Day, 2018.
+Date: weekday. Month Day, 2018.
 
 Topic:
 
@@ -14,11 +14,12 @@ Summary:
 
 
 ***************BEGIN******************
-Tue. Jan 23, 2018.
+Date: Tue. Jan 23, 2018.
 
 Topic: Brainstorming ideas for the project language.
 
-Summary: We discussed potential ideas for the language we will be creating:
+Summary: 
+We discussed potential ideas for the language we will be creating:
 1. A "graph" language that fascilitates handling of graph data structure.
 2. A "mechanics" language that helps calculation in terms of mechanical physics.
 3. A form processing/generating language that makes it easy to generate a form(for things like
@@ -29,4 +30,33 @@ can qualify our project as a new "language"; also, a general-purpose langauge se
 and we will probably focus on DSL.
 
 ****************END*******************
+
+
+
+***************BEGIN******************
+Date: Tue. Jan 30, 2018.
+
+Topic: Implementing basic syntaxes for the "graph" language idea.
+
+Summary: 
+We narrowed down our ideas and decided to try implementing the "graph" language first.
+Our main goal is to create a set of useful and simplicit syntaxes so that programmers can
+easily utilize our "graph" language.
+
+For instance, the programmer might have to find connections between cities on a map, and
+he or she simply needs to type in:
+(define-graph ...)
+(define-nodes (...) (...) ...)
+(find-path (graph ...) (origin ...) (destination ...))
+
+We also found several challenges:
+1. The data representation for graph, we know there are edge-centered, node-centered, and adjacency
+matrix representations. However, it's hard to decide which one to use as our default.
+2. How to properly translate the syntax into racket code. (when user adds a node to a graph, we have to use
+the set! function to update the pre-defined graph.)
+3. How to support more complicated nodes and edges, so that they can contain user-defined
+information fields(such as node-value, or edge-cost ...)
+
+****************END*******************
+
 

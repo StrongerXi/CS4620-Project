@@ -1,29 +1,61 @@
-(define-graph (name i)
-            (list nodes....))
 
 
-(define i graph [....])
-
-(define nodeA)
-
-
-
-(add-node (graph i)
-          (node b)
-          (cost 5))
+(struct graph [name nodes directed])
+;; A Graph is a (graph Symbol [List-of Node] Boolean)
+(struct node [name destinations])
+;; A Node is a (node Symbol [List-of Symbol]))
 
 
 
+(define-graph (name G)
+              (directed? #t)) ;; Default #f
 
-(node-init (name a)
-           (...))
+(define-nodes ((name A) (neighbors B E))
+              ((name B) (neighbors A))
+              ((name E) (neighbors A)))
+
+(add-node (graph G)
+          (nodes A B E))
 
 
+(find-path (graph G)
+           (nodes A B))
+
+(contains-node (graph G)
+               (nodes A))
 
 
 ==>
-(define a node [...])
-(define a node [...])
+
+(define G (graph 'G '() #t))
+(define A (node 'A '(B E)))
+(define B (node 'B '(A)))
+(define E (node 'E '(A)))
+
+(set! G (graph (graph-name G)
+               (list A B E)
+               (graph-directed G)))
+
+(find-path A B G)
+
+;;TODO Circular Path??
+
+; Node Node Graph -> [List-of Node]
+; finds a path from origination to destination in G
+(define (find-path origination destination G)
+  (cond
+    [(symbol=? origination destination) (list destination))]
+    [else (define neighbors (get-neighbors origination G))
+          (define results (map (lambda (node) 
+                                 (find-path node destination G)) 
+                               neighbors))
+          (define valid-results (filter cons? results))
+          (if (empty? valid-results)
+            '() 
+            (cons origination (first valid-results)))])
+
+
+
 ; Error at compile time or run time?
 ; error message -> (duplicate in define)
 ; but we want our customized error message (duplicate in node-init, name conflict)
@@ -57,30 +89,4 @@
     (E (C F))
     (F (D G))
     (G ())))
-
-; Node Node Graph -> [List-of Node]
-; finds a path from origination to destination in G
-(define (find-path origination destination G)
-  (cond
-    [(symbol=? origination destination) (list destination))]
-    [else (define neighbors (get-neighbors origination G))
-               (define results (map (lambda (node) (find-path node destination G))))
-               (define valid-results (filter cons? results))
-               (if (empty? valid-results)
-                 '() 
-                 (cons origination (first valid-results)))])
-
-(define-node A (neighbors B E))
-(define-node B (neighbors E F))
-
-
-(define-graph G (nodes A B)
-              (directed? #t))
-
-(find-path A B G)
-(contains-node G A)
-
-
-
-
 
