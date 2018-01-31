@@ -9,7 +9,7 @@ Topic:
 
 Summary:
 
-****************END*******************
+================END===================
 
 
 
@@ -29,7 +29,7 @@ Now everything really sounds just like extra libraries, we are trying to come up
 can qualify our project as a new "language"; also, a general-purpose langauge seems way too complex,
 and we will probably focus on DSL.
 
-****************END*******************
+================END===================
 
 
 
@@ -57,6 +57,36 @@ the set! function to update the pre-defined graph.)
 3. How to support more complicated nodes and edges, so that they can contain user-defined
 information fields(such as node-value, or edge-cost ...)
 
-****************END*******************
+================END===================
+
+
+
+***************BEGIN******************
+Date: Wed. Jan 31, 2018.
+
+Topic: Implementing more syntaxes for "racket-graph", and separate modules into different files.
+
+Summary:
+We finished the basic implementation for the "graph" language and decided to name it "racket-graph"
+for now. 
+For instance, now we have syntax and notations for initiate a graph, nodes, add nodes to graph, and
+find all the paths bewtween two nodes(circular path allowed, termination guaranteed).
+
+We also talked to Professor Felleisen about this idea, and made following conclusions after the
+discussion:
+1. We must further narrow down our language, and find our target users(for web-developers? traffic
+managers? linkedIn-like tasks....)
+2. Then, based on the target users of our language, we can construct a table of basic functionality
+required for this language, and we must implement the functions in racket itself first.
+3. After finishing implementation of the functions in racket, we can customize the syntax and
+notations of our own languages, and build syntax-transformers to parse them into the functions we
+built in racket.
+
+Extra:
+1. Other than graph, we can also look back to the projects we did during last semester in racket,
+and see if we can generalize any of the problem to a domain of problems, and build a language to
+handle problems in that specific domain.
+
+================END===================
 
 
