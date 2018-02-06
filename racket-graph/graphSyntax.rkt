@@ -1,6 +1,7 @@
 #lang racket
 
-(provide define-graph
+(provide (all-from-out racket)
+         define-graph
          define-nodes
          add-nodes
          print-graph)

@@ -9,10 +9,11 @@
   
   (define-syntax (foo stx)
     (syntax-parse stx
-      ((_ exp) #'(play exp)))))
+      ((_ exp) #'(play exp))))
+  5)
 
 
-(module test racket
+(module t racket
   (require (submod ".." foo-mod))
 
   (displayln (foo 5))

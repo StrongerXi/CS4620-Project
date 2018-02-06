@@ -90,3 +90,40 @@ handle problems in that specific domain.
 ================END===================
 
 
+***************BEGIN******************
+Date: Tue. Feb 6, 2018.
+
+Topic: Brainstorming other ideas, and functionalities for racket-graph
+
+Summary:
+We discussed several other potential languages for our project, besides the graph idea we came up
+last time. They include:
+1. A language to allow programmers make story-game, as long as they provide the images, texts, and 
+   describe the relationship between scenes. (for instance, scene 1 contains ..., can connect to
+   scene 2, 5, ...)
+
+2. A language to allow programmers manipulate boolean algebra. The input will be boolean formula,
+   and a pre-defined set of operations on those formula such as:
+   a. make ascii truth table.
+   b. apply De-Morgan's law
+   c. construct DNF/CNF formula
+   d. simplification??? (this could be extremely difficult)
+
+We also disccused how we can further develope the graph language we had in mind. Primarily, we
+decided to have one source file representing only one single graph, and simplies the syntax as much
+as possible so that programmers could transform a dataset into the source code of this language:
+  Traffic data(connections between stations, estimated time, available transportations...)
+  ->
+  nodes and edges
+  ->
+  output desired path, with any necessary constraints.
+Also, we decided that we could provide a functionality that translates the graph into a 
+DOT source code, so that we can have the DOT program generate an image of the graph, without
+having to implement any GUI in our language, which takes a substantial amount of work.
+
+
+Next step would be:
+1. Implement the algorithms in racket, and try to translate a graph into a DOT source code.
+2. Add functionality that allows programmers  to specify constraints on the result.
+3. Add functionality to support node that contains information within themselves.
+================END===================
