@@ -127,3 +127,40 @@ Next step would be:
 2. Add functionality that allows programmers  to specify constraints on the result.
 3. Add functionality to support node that contains information within themselves.
 ================END===================
+
+
+
+Template:
+
+***************BEGIN******************
+Date: Fri. Feb 16, 2018
+
+Topic: Switching gear to a new language
+
+Summary:
+Since our current assignment has been targeting towards implementation of a "network lang", which
+resembles our idea of graph language, we decided to narrow down our language choice even further,
+both to avoid conflict with what we are doing for assignment, and to have more fun.
+
+We decided to implement a language that helps programmer make travel plan/schedule.
+
+Ideally, the programmer would input his origin, destination, and all the flights/train/... whatever
+transportation that connect the two places(if they are connectable at all)
+
+The information for any single transportation include:
+Origin, Monetary Cost, Time Start, Time Duration, Destination.
+
+The program could consist of these definitions, and some inquiries the programmer specifies.
+For instance:
+
+All paths that arrives before ...(arrival time specification)
+All paths that cost no more than ...(monetary specification)
+All paths that go through/not go through ...(intermediate stops specification)
+
+Or, we could simply have the programmer specify a range for time and cost (could be open ended range)
+
+Next step would be:
+1. Clean up the libraries first,
+2. Print out the final result nicely.
+3. Set up grammar and syntax
+================END===================
