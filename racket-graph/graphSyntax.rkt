@@ -9,6 +9,7 @@
 (require rackunit)
 
 
+
 (define-syntax (define-graph stx)
   (syntax-case stx (name directed?)
     ((_ (name name-id))
@@ -51,17 +52,15 @@
 ;; A Graph is a (graph Symbol [List-of Node] Boolean)
 (struct node [name edges] #:transparent)
 ;; A Node is a (node Symbol [List-of Edge]))
-(struct edge [to cost start duration] #:transparent)
-;; An edge is a (edge Symbol Number Number Number
+(struct edge [to cost start end] #:transparent)
+;; An Edge is a (edge Symbol Number Number Number)
+;; to represents the destination of this edge
 ;; cost represents the monetary cost of this route/edge
 ;; start represents the starting time (converted to a single number)
-;; duration represents how long the route takes
-
-;; A Path is a [List [List-of Symbol] Number Number]
-;; Where symbols are names of nodes that connect the first symbol
-;; to the last in a graph.
-;; First number is the total monetary cost,
-;; second is time duration
+;; end represents the time of arrival
+(struct path [ori loe] #:transparent)
+;; A Path is a (path Symbol [List-of Edge])
+;; ori is a symbol representing origin
 
 
 ;; -------------------------------------------------------------------
@@ -70,17 +69,17 @@
 ;; -------------------------------------------------------------------
 #|
 
-A -> B 100 500 60
-A -> B 150 400 60
-B -> C 30 800 60
-B -> C 70 600 60
+A -> B 100 500 700
+A -> B 150 400 610
+B -> C 30 800 950
+B -> C 70 600 750
 
 
 |#
-(define A (node 'A (list (edge 'B 100 500 90)
-                         (edge 'B 150 400 60))))
-(define B (node 'B (list (edge 'C 30 800 120)
-                         (edge 'C 70 550 80))))
+(define A (node 'A (list (edge 'B 100 500 700)
+                         (edge 'B 150 400 610))))
+(define B (node 'B (list (edge 'C 30 800 950)
+                         (edge 'C 70 550 750))))
 (define C (node 'C '()))
 (define sample-G (graph 'sample (list A B C) #t))
 
@@ -100,18 +99,6 @@ B -> C 70 600 60
 ;; Symbol Graph -> [List-of Symbol]
 ;; Return a list of name of neighbors 
 ;; of the node with given name  in graph G
-(module+ test
-  (check-equal? (get-edges 'B sample-G)
-                (list (edge 'C 30 800 60)
-                      (edge 'C 70 600 60)))
-
-  (check-equal? (get-edges 'A sample-G)
-                (list (edge 'B 100 500 60)
-                      (edge 'B 150 400 60)))
-
-  (check-equal? (get-edges 'C sample-G)
-                '()))
-
 (define (get-edges name G)
   (define the-node (get-node name G))
   (if the-node
@@ -119,51 +106,58 @@ B -> C 70 600 60
     '()))
 
 
+;; 
 ;; Adds an edge to existing path
 ;; Effectively returning an updated path including that edge
-(define (make-path eg path)
-  (list (cons (edge-to eg) (first path))
-        (+ (edge-cost eg) (second path))
-        (+ (edge-duration eg) (third path))))
+(define (update-path eg p)
+  (path (path-ori p)
+        (cons eg (path-loe p))))
 
+;; Edge [List-of Path] -> [List-of Path]
 ;; Similar to make-path
 ;; Adds an edge to update each path in given list of path lop
 (define (add-to-paths eg lop)
   (map (lambda (a-path)
-         (cons eg a-path))
+         (update-path eg a-path))
        lop))
+
 
 ; Symbol Symbol Graph Number -> [List-of Path]
 ; finds a all paths from name of node ori to name of node des in graph G
 ; current time set to be curr
 ; If no such path exist, the list contains names of both origin and destination,
 ; and name of all the intermediate nodes.
-(define (find-all-path ori des G curr)
+(define (find-all-path origin des G start-time)
   (local (;; Accumulator seen:
           ;; A list of symbols that represents the name of nodes
           ;; which have been visited
+          ;; curr is a number that reprents the current time
           ;; ASSUME:
           ;; ori is not in seen
-          (define (find-all-path-acc ori des G seen curr)
+          (define (find-all-path-acc curr-pos seen curr)
             (cond
-              [(symbol=? ori des) `(())]
-              [else (define neighbors (get-edges ori G))
+              [(symbol=? curr-pos des) (list (path origin '()))]
+              [else (define neighbors (get-edges curr-pos G))
 
                     ;; Filter out neighbors that have been seen
                     ;; [List-of Edges]
-                    (define valid-neighbors (filter (lambda (an-edge)
-                                                      (and (not (member (edge-to an-edge) seen))
-                                                           (< curr (edge-start an-edge))))
-                                                    neighbors))
+                    (define valid-neighbors 
+                      (filter (lambda (an-edge)
+                                (and (not (member (edge-to an-edge) seen))
+                                     (< curr (edge-start an-edge))))
+                              neighbors))
+
 
                     ;; [List-of [List-of Path]]
-                    (define results (map (lambda (an-edge) 
-                                           (add-to-paths an-edge
-                                                         (find-all-path-acc (edge-to an-edge) des G 
-                                                                            (cons (edge-to an-edge) seen)
-                                                                            (+ (edge-duration an-edge) 
-                                                                               (max curr (edge-start an-edge))))))
-                                         valid-neighbors))
+                    (define results 
+                      (map (lambda (an-edge) 
+                             (add-to-paths an-edge
+                                          (find-all-path-acc (edge-to an-edge) 
+                                                             (cons (edge-to an-edge) seen)
+                                                             (edge-end an-edge))))
+                           valid-neighbors))
+
+
                     ;; [List-of Path]
                     ;; Paths from all of ori's valid neighbors to
                     ;; des
@@ -175,12 +169,7 @@ B -> C 70 600 60
                              results))
 
                     flattened-results])))
-    (find-all-path-acc ori des G '() curr)))
+    (find-all-path-acc origin '() start-time)))
 
 (find-all-path 'A 'C sample-G 350)
-
-(module+ test)
-
-
-
 

@@ -130,7 +130,6 @@ Next step would be:
 
 
 
-Template:
 
 ***************BEGIN******************
 Date: Fri. Feb 16, 2018
@@ -164,3 +163,33 @@ Next step would be:
 2. Print out the final result nicely.
 3. Set up grammar and syntax
 ================END===================
+
+
+
+
+***************BEGIN******************
+Date: Tue. Feb 27, 2018.
+
+Topic: Significant change to data representation and Finalizing Design
+
+Summary:
+We are finalizing our language design, in terms of 
+Vocabulary, Scope, Grammar, Semantics.
+
+The goal of the language is roughly the same as described in our last Memo. 
+However, this time, we realized the issue of Time-zone when we are dealing with international
+flight schedule management. We had to make significant changes in our underlying data definition
+to accomodate that. 
+
+We also realized that our language is quite limited as it focuses on solving a specific type of
+problem -- travel/transportation schedule planning.
+
+Right now, the mechanical part of the language building process is nearly complete, so
+we will focus on designing a convenient syntax for our clients.
+
+We shall focus on the following aspects:
+1. Good error messages.
+2. Readable output of program.
+3. Readable syntax.
+================END===================
+
