@@ -27,11 +27,11 @@
 
 (plan (Boston -> Beijing)
       ;; All optional
-      (departure 10:30 to 20:00)
-      (date 02/08/2018 to 02/10/2018)
-      (wait-time 0 to 5 hrs)
-      (price $700 to $ 1200)
-      (duration 8 to 12 hrs)
+      (departure 10:30 ~ 20:00)
+      (date 02/08/2018 ~ 02/10/2018)
+      (wait-time 0 ~ 5 hrs)
+      (price $700 ~ $ 1200)
+      (duration 8 ~ 12 hrs)
       (go-through city-name ...)
       (bypass city-name ...))
 

@@ -1,0 +1,59 @@
+==============================
+Vocabulary:
+
+plan
+->
+~
+depart-time
+date
+wait-time
+price
+duration
+go-through
+bypass
+
+
+
+==============================
+Grammar:
+
+Program
+p = city-clause ... plan-clause ...
+
+
+;; represents the origin city and all the means of transportation
+;; that connects it to the specified city
+city-clause = (name (to-clause ...))
+
+to-clause = (cost time date time date name)
+
+
+plan-clause = (plan (name -> name)
+                    constraint ...) | constraint must be unique clauses of different kinds
+
+constraint is one of:
+- (depart-time time ~ time)
+- (date time ~ time)
+- (wait-time number ~ number) ;; Unit is hour
+- (price number ~ number) ;; Unit is USD
+- (duration number ~ number) ;; Unit is hour
+- (go-through name ...)
+- (bypass name ...)
+
+name is an id
+
+time = hour:min 
+s.t. (<= hour 0 24) && (<= min 0 60)
+
+date = mm/dd/yy 
+s.t. It represents a standard sensible date after 0 A.D.
+
+
+
+==============================
+Scope:
+
+In a city-clause, (name (to-clause ...))
+name is bound throughout the entire program.
+
+
