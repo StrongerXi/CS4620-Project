@@ -16,20 +16,13 @@ bypass
 
 ==============================
 Grammar:
-
-Program
 p = city-clause ... plan-clause ...
-
-
-;; represents the origin city and all the means of transportation
-;; that connects it to the specified city
 city-clause = (name (to-clause ...))
-
-to-clause = (cost time date time date name)
-
-
+to-clause = (number time date time date name)
 plan-clause = (plan (name -> name)
-                    constraint ...) | constraint must be unique clauses of different kinds
+                    constraint 
+                    ...)
+              ;; (constraint ...) must be different specifications
 
 constraint is one of:
 - (depart-time time ~ time)
@@ -40,12 +33,16 @@ constraint is one of:
 - (go-through name ...)
 - (bypass name ...)
 
+
+
 name is an id
+
 
 time = hour:min 
 s.t. (<= hour 0 24) && (<= min 0 60)
 
-date = mm/dd/yy 
+
+date = mm/dd/yyyy
 s.t. It represents a standard sensible date after 0 A.D.
 
 

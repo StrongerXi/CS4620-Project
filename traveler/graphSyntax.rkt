@@ -10,6 +10,13 @@
 
 
 
+;"(\d{2}):(\d\{2})"
+;"(\d\{2})/(\d\{2})/(\d\{4})"
+;; Date-String -> Number
+;; Time -> Number
+
+;(define 
+
 (define-syntax (define-graph stx)
   (syntax-case stx (name directed?)
     ((_ (name name-id))
@@ -52,7 +59,7 @@
 ;; A Graph is a (graph Symbol [List-of Node] Boolean)
 (struct node [name edges] #:transparent)
 ;; A Node is a (node Symbol [List-of Edge]))
-(struct edge [to cost start end] #:transparent)
+(struct edge [from to cost start end] #:transparent)
 ;; An Edge is a (edge Symbol Number Number Number)
 ;; to represents the destination of this edge
 ;; cost represents the monetary cost of this route/edge
@@ -76,10 +83,10 @@ B -> C 70 600 750
 
 
 |#
-(define A (node 'A (list (edge 'B 100 500 700)
-                         (edge 'B 150 400 610))))
-(define B (node 'B (list (edge 'C 30 800 950)
-                         (edge 'C 70 550 750))))
+(define A (node 'A (list (edge 'A 'B 100 500 700)
+                         (edge 'A 'B 150 400 610))))
+(define B (node 'B (list (edge 'B 'C 30 800 950)
+                         (edge 'B 'C 70 550 750))))
 (define C (node 'C '()))
 (define sample-G (graph 'sample (list A B C) #t))
 
