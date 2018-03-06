@@ -7,7 +7,8 @@
          racket/date)
 
 (define (date-time->number date time)
-  (quotient (date->seconds (syntax->date date time)) 60))
+  (define secs (date->seconds (syntax->date date time)))
+  (datum->syntax date secs))
 
 ;; Syntax Syntax -> date
 ;; checks validity and returns a date struct

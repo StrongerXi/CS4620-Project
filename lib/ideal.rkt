@@ -1,37 +1,28 @@
-
-;#lang traveler
+#lang s-exp "traveler.rkt"
 
 ; Assume:
 ; Schedule language is a directed graph by default
 
 
 
-(config (currency '$))
-
 ;; Optional
-
-
-(save-output-to "out.data")
+;; (save-output-to "out.data")
 
 
 
-(plan (Boston -> Beijing)
-      ;; All optional
-      (departure 10:30 ~ 20:00)
-      (date 02/08/2018 ~ 02/10/2018)
-      (wait-time 0 ~ 5 hrs)
-      (price $700 ~ $ 1200)
-      (duration 8 ~ 12 hrs)
-      (go-through city-name ...)
-      (bypass city-name ...))
+;; TODO
+;; 1. Display paths
+;; 2. Implement optional constraint clauses
+
+;; Followings are relatively easy:
+;; 3. Seperate plan and database into different files
+;; such that each plan file "requires" a database file
+;; 4. Save output to specified file
 
 
 
 
-
-#lang traveler
-
-(plan (Boston -> Beijing)
+(plan (Boston --> Beijing)
       (timezone -10 +8) ;; Standard timezone diff.
       ;; All optional
       (departure 10:30 ~ 20:00)
@@ -52,7 +43,7 @@
         (SA207  19:00 02/09/2018 13:00 02/10/2018 1500 Beijing))
 
 
-(Shanghai (SC770  20:30 02/08/2018 0:30  02/09/2018 300 Beijing)
+(Shanghai (SC770  20:30 02/11/2018 0:30  02/12/2018 300 Beijing)
           (JA3600 07:30 02/10/2018 12:40 02/09/2018 670 とうきょう)
           (SC1400 14:20 02/09/2018 18:45 02/09/2018 450 北京))
 
@@ -67,16 +58,3 @@
 ;; path-duration
 ;; path-total-wait-time
 ;; ...
-
-
-
-;; Need a nice way to print out path
-
-#|
-
-Plan A
-
-
-
-|#
-

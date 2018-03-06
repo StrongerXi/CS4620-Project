@@ -1,61 +1,87 @@
 #lang racket
 
-(provide (all-from-out racket)
-         define-graph
-         define-nodes
-         add-nodes
-         print-graph)
+(require rackunit
+         (for-syntax syntax/parse
+                     "date.rkt"
+                     racket))
 
-(require rackunit)
-
-
-
-;"(\d{2}):(\d\{2})"
-;"(\d\{2})/(\d\{2})/(\d\{4})"
-;; Date-String -> Number
-;; Time -> Number
-
-;(define 
-
-(define-syntax (define-graph stx)
-  (syntax-case stx (name directed?)
-    ((_ (name name-id))
-     #'(define name-id (graph 'name-id '() #f)))
-    ((_ (name name-id) (directed? bool))
-     #'(define name-id (graph 'name-id '() bool)))))
+(provide 
+  #%app
+  #%datum
+  (rename-out [traveler-mb #%module-begin]))
 
 
 
-(define-syntax (define-nodes stx)
-  (syntax-case stx (->)
-    ((_ (name-id -> nb-ids ...) ...)
-     #'(begin (define name-id (node 'name-id '(nb-ids ...)))
-              ...))))
+;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;;
+;;;;;;;;;;; ;;;;;;;;;;;   Syntaxes  ;;;;;;;;;;; ;;;;;;;;;;;
+;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;;
 
 
 
-(define-syntax (add-nodes stx)
-  (syntax-case stx (->)
-    ((_ 
-        (node-id ...)
-        ->
-        graph-id)
+;; The entire client file will be parsed into:
+;; (define database ...)
+;; (find-all-path from to database)
+(define-syntax traveler-mb
+  (syntax-parser
+    [(_ p city ...)
+     (check-origin-dups #'(city ...))
+     #'(#%module-begin
+        (define database
+          (graph (list (city-clause city) ...)))
+        (make-plan database p))]))
 
-     #'(set! graph-id (graph (graph-name graph-id)
-                             (append (list node-id ...)
-                                     (graph-nodes graph-id))
-                             (graph-directed graph-id))))))
+;; Syntax -> Void
+;; Given a syntax that represents a list of city clauses,
+;; raise a syntax error if there are any duplicates in the
+;; origin names
+(define-for-syntax (check-origin-dups stx)
+  ;; [List-of city-syntax]
+  (define loc (syntax->datum stx))
+  (define names (map first loc))
+  (unless (not (check-duplicates names))
+    (raise-syntax-error #f "duplicates in origin names")))
 
 
-(define (print-graph G)
-  (displayln (graph-name G))
-  (void (map (lambda (node)
-               (displayln (list (node-name node)
-                                (node-edges node))))
-             (graph-nodes G))))
+
+;; Turn city-clause into a runtime Node struct
+(define-syntax city-clause
+  (syntax-parser
+    [(_ (ori to-clause ...))
+     #'(node 'ori (list (make-edge 'ori to-clause) ...))]))
+
+;; Turn a given origin name and to-clause into an edge struct
+;; Ex:
+;; (Boston (SA207  19:00 02/09/2018 13:00 02/10/2018 1500 Beijing))
+(define-syntax make-edge
+  (syntax-parser
+    [(_ ori 
+        (id depart-time depart-date arrive-time arrive-date cost des))
+     #:with start (date-time->number #'depart-date #'depart-time)
+     #:with end (date-time->number #'arrive-date #'arrive-time)
+     #'(edge 'ori 'des cost start end)]))
 
 
-(struct graph [name nodes directed] #:transparent)
+(define-syntax make-plan 
+  (syntax-parser
+    #:datum-literals (plan --> timezone)
+    [(_ db 
+        (plan (ori -> des)
+              (timezone ori-tz des-tz)
+              conditional-clause 
+              ...))
+     #'(begin
+         (define paths (find-all-path 'ori 'des db 0))
+         paths)]))
+         
+
+
+
+
+;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;;
+;;;;;;;;;;; ;;;;;;;;;;; Runtime Functions  ;;;;;;;;;;; ;;;;;;;;;;;
+;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;;
+
+(struct graph [nodes] #:transparent)
 ;; A Graph is a (graph Symbol [List-of Node] Boolean)
 (struct node [name edges] #:transparent)
 ;; A Node is a (node Symbol [List-of Edge]))
@@ -88,7 +114,7 @@ B -> C 70 600 750
 (define B (node 'B (list (edge 'B 'C 30 800 950)
                          (edge 'B 'C 70 550 750))))
 (define C (node 'C '()))
-(define sample-G (graph 'sample (list A B C) #t))
+(define sample-G (graph (list A B C)))
 
 ;; Symbol Graph -> [Maybe Node]
 ;; Retrive the Node that has corresponding name from graph G
@@ -178,5 +204,5 @@ B -> C 70 600 750
                     flattened-results])))
     (find-all-path-acc origin '() start-time)))
 
-(find-all-path 'A 'C sample-G 350)
+;(find-all-path 'A 'C sample-G 350)
 

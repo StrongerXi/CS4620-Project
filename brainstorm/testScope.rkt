@@ -1,26 +1,22 @@
 #lang racket 
 
-(module foo-mod racket
-  (provide foo)
-  (require (for-syntax syntax/parse))
 
-  (define (play x)
-    (* 10 x))
-  
-  (define-syntax (foo stx)
-    (syntax-parse stx
-      ((_ exp) #'(play exp))))
-  5)
+(require (for-syntax syntax/parse))
+
+(define-syntax foo
+  (syntax-parser
+    [(_ e ...) 
+     #'(begin
+         (define a 5)
+         a)]))
 
 
-(module t racket
-  (require (submod ".." foo-mod))
+(define-syntax bar
+  (syntax-parser
+    [(_ e)
+     #:with name (datum->syntax #'e 'a)
+     #'name]))
 
-  (displayln (foo 5))
-
-  (define (play x)
-    (add1 x))
-  (play 2)
-  (displayln   (foo 5)))
-
+(foo 5)
+(foo 5)
 
