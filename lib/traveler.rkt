@@ -1,6 +1,7 @@
 #lang racket
 
 (require rackunit
+         "structs.rkt"
          (for-syntax syntax/parse
                      "date.rkt"
                      racket))
@@ -81,21 +82,6 @@
 ;;;;;;;;;;; ;;;;;;;;;;; Runtime Functions  ;;;;;;;;;;; ;;;;;;;;;;;
 ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;; ;;;;;;;;;;;
 
-(struct graph [nodes] #:transparent)
-;; A Graph is a (graph Symbol [List-of Node] Boolean)
-(struct node [name edges] #:transparent)
-;; A Node is a (node Symbol [List-of Edge]))
-(struct edge [from to cost start end] #:transparent)
-;; An Edge is a (edge Symbol Number Number Number)
-;; to represents the destination of this edge
-;; cost represents the monetary cost of this route/edge
-;; start represents the starting time (converted to a single number)
-;; end represents the time of arrival
-(struct path [ori loe] #:transparent)
-;; A Path is a (path Symbol [List-of Edge])
-;; ori is a symbol representing origin
-
-
 ;; -------------------------------------------------------------------
 ;; How to hide utility functions' scopes
 ;; Utility Functions for Graph
@@ -144,6 +130,7 @@ B -> C 70 600 750
 ;; Effectively returning an updated path including that edge
 (define (update-path eg p)
   (path (path-ori p)
+        (path-des p)
         (cons eg (path-loe p))))
 
 ;; Edge [List-of Path] -> [List-of Path]
@@ -169,7 +156,7 @@ B -> C 70 600 750
           ;; ori is not in seen
           (define (find-all-path-acc curr-pos seen curr)
             (cond
-              [(symbol=? curr-pos des) (list (path origin '()))]
+              [(symbol=? curr-pos des) (list (path origin des '()))]
               [else (define neighbors (get-edges curr-pos G))
 
                     ;; Filter out neighbors that have been seen

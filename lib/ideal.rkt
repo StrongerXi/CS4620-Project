@@ -25,8 +25,8 @@
 (plan (Boston --> Beijing)
       (timezone -10 +8) ;; Standard timezone diff.
       ;; All optional
-      (departure 10:30 ~ 20:00)
-      (date 02/08/2018 ~ 02/10/2018)
+      (depart-time 10:30 ~ 20:00)
+      (depart-date 02/08/2018 ~ 02/10/2018)
       (wait-time 0 ~ 5 hrs)
       (price $700 ~ $ 1200)
       (duration 8 ~ 12 hrs)
@@ -52,9 +52,3 @@
 
 
 
-;; Filter Implementation utilities
-;; path-depart (covers date and time (mod 24*60))
-;; path-get-cost
-;; path-duration
-;; path-total-wait-time
-;; ...
