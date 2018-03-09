@@ -5,6 +5,7 @@
   (struct-out node)
   (struct-out edge)
   (struct-out path)
+  (struct-out processed-path)
   (struct-out result))
 
 (struct graph [nodes] #:transparent)
@@ -15,14 +16,14 @@
 ;; An Edge is a (edge Symbol Number Number Number)
 ;; to represents the destination of this edge
 ;; cost represents the monetary cost of this route/edge
-;; start represents the starting time (converted to a single number)
-;; end represents the time of arrival
+;; start represents the starting timedate (converted to a single number)
+;; end represents the timedate of arrival
 (struct path [ori des loe] #:transparent)
 ;; A Path is a (path Symbol Symbol [List-of Edge])
 ;; ori is a symbol representing origin
 ;; des is a symbol representing destination
 
-(struct processed-path [path ori-tz des-tz cost duration wait-time stop-count]) 
+(struct processed-path [path ori-tz des-tz cost duration wait-time stop-count] #:transparent) 
 ;; A Processed-Path is a (processed-path Path Integer Integer Number Positive-Number N)
 ;; ori-tz is the timezone of origin (such as +8)
 ;; des-tz is the timezone of destination (such as -3)

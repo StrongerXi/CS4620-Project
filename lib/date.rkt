@@ -1,7 +1,11 @@
 #lang racket
 
 (provide
- date-time->number)
+ date-time->number
+ hour->seconds
+ time->seconds
+ increment-day
+ (rename-out [date->secs date->seconds]))
 
 (require racket/string
          racket/date)
@@ -9,6 +13,31 @@
 (define (date-time->number date time)
   (define secs (date->seconds (syntax->date date time)))
   (datum->syntax date secs))
+
+
+;; Syntax -> Syntax
+;; #'12345 -> #'12345...
+;; Treat input syntax as a representation of a time-date in seconds
+;; increment the time-date by a day and return the reulst seconds as a syntax
+(define (increment-day time-date-secs)
+  (datum->syntax time-date-secs 0))
+
+
+;; Syntax -> (Syntax N)
+;; #'2 -> 7200
+(define (hour->seconds hour)
+  (datum->syntax hour 0))
+
+;; Syntax -> (Syntax N)
+;; #'20:00 -> 72000
+(define (time->seconds time)
+  (datum->syntax time 0))
+
+;; Syntax -> (Syntax N)
+;; #'02/10/2018 -> ...
+(define (date->secs date)
+  (datum->syntax date 0))
+
 
 ;; Syntax Syntax -> date
 ;; checks validity and returns a date struct
