@@ -1,26 +1,79 @@
 #lang racket
 
-(require "structs.rkt")
+(provide
+ res->string
+ pp->string)
+ 
+(require "structs.rkt"
+         "date.rkt")
+
+
 
 
 ;; Result -> String
 ;; stringify the plan Result as final output of a traveler program
-(define (lopp->string lopp)
-  "")
+(define (res->string res)
+  (string-append
+   sep=
+   (symbol->string (result-name res))
+   (foldr (λ (pp str) (string-append str "\n" (pp->string pp))) "" (result-lop res))
+   sep=))
 
 
 ;; Processed-Path -> String
 ;; ...
 (define (pp->string pp)
-  "")
+  (define path (path-loe (processed-path-path pp)))
+  (define list-ori (map (λ (p) (symbol->string (edge-from p))) path))
+  (define list-des (map (λ (p) (symbol->string (edge-to p))) path))
+  (define list-start (map edge-start path))
+  (define list-end (map edge-start path))
+  (define list-cost (map edge-cost path))
+  (define col1 (string-length (argmax string-length (cons "From" list-ori))))
+  (define col2 (string-length (argmax string-length (cons "To" list-des))))
+  (define (combine ori des start end cost)
+    (string-append
+     (~a ori #:min-width col1)
+     "   "
+     (~a des #:min-width col2)
+     "   "
+     (seconds->date-str start)
+     "  "
+     (seconds->date-str end)
+     "  "
+     (number->string cost)
+     "\n"))
+  (define main (foldr string-append "" (map combine list-ori list-des list-start list-end list-cost)))
+  (string-append
+   sep*
+   "Number of intermediate stops : " (number->string (processed-path-stop-count pp)) "\n"
+   "Total Price : $" (number->string (processed-path-cost pp)) "\n"
+   "Total Duration : " (number->string (processed-path-duration pp)) "\n\n"
+   (string-append (~a "From" #:min-width col1) "   " (~a "To" #:min-width col2)
+                  "   Departure Time      Arrival Time        Cost\n")
+   main))
+
+(define sep*
+  "****************************************************************************************\n")
+(define sep=
+  "========================================================================================\n")
 
 
-;; Edge -> String
-;; ...
-(define (edge->string eg)
-  "")
+(printf
+ (pp->string (processed-path
+  (path 'Boston 'Beijing
+        (list (edge 'Boston 'Shanghai 980 1518127200 1518265800)
+              (edge 'Shanghai 'Beijing 300 1518399000 1518413400)))
+  -10
+  8
+  1280
+  221400
+  133200
+  1)))
 
 
+
+#|
 ;; A -> B t1 t2 $1000
 (define los '("Boston" "JFK" "Shanghai"))
 (define lod '("JFK" "Shanghai" "Beijing"))
@@ -55,4 +108,4 @@
 (out "JFK" n1 "Shanghai" n2  "   22:00 02/02/2018  02:00 02/04/2018  $1534\n")
 (out "Shanghai" n1 "Beijing" n2  "   20:00 02/04/2018  02:00 02/05/2018  $1534\n")
 (printf sep*)
-(printf sep=)
+(printf sep=)|#
