@@ -5,6 +5,7 @@
  hour->seconds
  time->seconds
  increment-day
+ seconds->date-str
  (rename-out [date->secs date->seconds]))
 
 (require racket/string
@@ -19,25 +20,39 @@
 ;; #'12345 -> #'12345...
 ;; Treat input syntax as a representation of a time-date in seconds
 ;; increment the time-date by a day and return the reulst seconds as a syntax
-(define (increment-day time-date-secs)
-  (datum->syntax time-date-secs 0))
+(define (increment-day sec)
+  (datum->syntax sec (+ (syntax->datum sec) 86400)))
 
 
 ;; Syntax -> (Syntax N)
-;; #'2 -> 7200
+;; #'2 -> #'7200
 (define (hour->seconds hour)
-  (datum->syntax hour 0))
+  (datum->syntax hour (* (syntax->datum hour) 3600)))
 
 ;; Syntax -> (Syntax N)
 ;; #'20:00 -> 72000
 (define (time->seconds time)
-  (datum->syntax time 0))
+  (datum->syntax time (- (syntax->datum (date-time->number #'1/1/1970 time)) 18000)))
 
 ;; Syntax -> (Syntax N)
 ;; #'02/10/2018 -> ...
 (define (date->secs date)
-  (datum->syntax date 0))
+  (date-time->number date #'00:00))
 
+;; Number -> String
+;; 12345.. -> "17:45 10/31/2001"
+(define (seconds->date-str sec)
+  (define d (seconds->date sec))
+  (~a (string-append
+       (normalize (date-hour d)) ":" (normalize (date-minute d)) " "
+       (normalize (date-month d)) "/" (normalize (date-day d)) "/" (normalize (date-year d)))
+      #:min-width 18))
+
+(define (normalize num)
+  (define str (number->string num))
+  (if (< num 10)
+      (string-append "0" str)
+      str))
 
 ;; Syntax Syntax -> date
 ;; checks validity and returns a date struct
@@ -55,10 +70,10 @@
   (define t (symbol->string (syntax->datum time)))
   (define time-list (map string->number (string-split t ":")))
   (if (and
-       (andmap number? time-list)
+       (andmap integer? time-list)
        (= (length time-list) 2)
-       (< (first time-list) 24)
-       (< (second time-list) 60)) time-list #f))
+       (<= 0 (first time-list) 23)
+       (<= 0 (second time-list) 59)) time-list #f))
 
 ;; syntax-> [maybe list of numbers]
 ;; returns a list of numbers representing the date if the date is valid else returns false
@@ -69,12 +84,12 @@
   (define month-30 '(4 6 9 11))
   (if
    (and
-    (andmap number? date-list)
+    (andmap integer? date-list)
     (= (length date-list) 3)
-    (or (and (member (first date-list) month-31) (<= (second date-list) 31))
-        (and (member (first date-list) month-30) (<= (second date-list) 30))
-        (and (= (first date-list) 2) (not (is-leap-year (third date-list))) (<= (second date-list) 28))
-        (and (= (first date-list) 2) (is-leap-year (third date-list)) (<= (second date-list) 29))))
+    (or (and (member (first date-list) month-31) (<= 1 (second date-list) 31))
+        (and (member (first date-list) month-30) (<= 1 (second date-list) 30))
+        (and (= (first date-list) 2) (not (is-leap-year (third date-list))) (<= 1 (second date-list) 28))
+        (and (= (first date-list) 2) (is-leap-year (third date-list)) (<= 1 (second date-list) 29))))
    date-list #f))
 
 ;; checks if the given year is a leap year
