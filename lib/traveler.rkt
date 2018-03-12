@@ -2,6 +2,7 @@
 
 (require rackunit
          "structs.rkt"
+         "format.rkt"
          (for-syntax syntax/parse
                      "date.rkt"
                      racket))
@@ -73,7 +74,8 @@
   (syntax-parser
     #:datum-literals (plan --> timezone)
     [(_ db 
-        (plan (ori -> des)
+        (plan name:id
+              (ori -> des)
               (timezone ori-tz:number des-tz:number)
               conditional-clause 
               ...))
@@ -82,7 +84,8 @@
          (define paths (find-all-path 'ori 'des db 0))
          (define processed (lop->lopp paths ori-tz des-tz))
          (define filtered (filter-lopp processed (list conditional-clause ...)))
-         filtered)]))
+         (define output (result 'name filtered))
+         (displayln (res->string output)))]))
          
 
 
@@ -378,7 +381,9 @@ B -> C 70 600 750
 ;; Retrive the initial depart time of this path, represented in seconds
 (define (pp-depart-time pp)
   (define secs-in-day (* 60 60 24))
-  (modulo (pp-depart-timedate pp) secs-in-day))
+  (define output (modulo (- (pp-depart-timedate pp) 18000) ;; Mystery
+                         secs-in-day))
+  output)
 
 
 ;; Processed-Path -> Number

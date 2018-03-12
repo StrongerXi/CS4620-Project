@@ -11,6 +11,9 @@
 (require racket/string
          racket/date)
 
+
+;; Syntax Syntax -> Syntax
+;; #'02/20/2018 #'20:00 -> #'53535321....
 (define (date-time->number date time)
   (define secs (date->seconds (syntax->date date time)))
   (datum->syntax date secs))
@@ -33,6 +36,7 @@
 ;; #'20:00 -> 72000
 (define (time->seconds time)
   (datum->syntax time (- (syntax->datum (date-time->number #'1/1/1970 time)) 18000)))
+
 
 ;; Syntax -> (Syntax N)
 ;; #'02/10/2018 -> ...
@@ -97,4 +101,5 @@
   (or (and (= (modulo year 4) 0) 
            (not (= (modulo year 100) 0)))
       (= (modulo year 400) 0)))
+
 

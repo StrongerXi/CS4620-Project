@@ -11,8 +11,8 @@
 
 
 ;; TODO
-;; 1. Display paths
-;; 2. Implement optional constraint clauses
+;; For some weird reason, #01/01/1970 #'00:00 represents #'18000 seconds
+;; This requires some hacks to fix time syncronization, which is not very pretty
 
 ;; Followings are relatively easy:
 ;; 3. Seperate plan and database into different files
@@ -22,13 +22,14 @@
 
 
 
-(plan (Boston --> Beijing)
+(plan myPlan
+      (Boston --> Beijing)
       (timezone -10 +8) ;; Standard timezone diff.
       ;; All optional
-      ;(depart-time 10:30 ~ 20:00)
-      ;(depart-date 02/08/2018 ~ 02/10/2018)
+      (depart-time 10:30 ~ 20:00)
+      (depart-date 02/09/2018 ~ 02/10/2018)
       ;(wait-time 0 ~ 5)
-      (price 700 ~ 1300)
+      ;(price 700 ~ 1300)
       ;(duration 8 ~ 12))
       )
 

@@ -16,7 +16,11 @@
   (string-append
    sep=
    (symbol->string (result-name res))
-   (foldr (λ (pp str) (string-append str "\n" (pp->string pp))) "" (result-lop res))
+   (foldr (λ (pp str) 
+             (string-append str "\n" 
+                            (pp->string pp)))
+          "" 
+          (result-lop res))
    sep=))
 
 
@@ -27,7 +31,7 @@
   (define list-ori (map (λ (p) (symbol->string (edge-from p))) path))
   (define list-des (map (λ (p) (symbol->string (edge-to p))) path))
   (define list-start (map edge-start path))
-  (define list-end (map edge-start path))
+  (define list-end (map edge-end path))
   (define list-cost (map edge-cost path))
   (define col1 (string-length (argmax string-length (cons "From" list-ori))))
   (define col2 (string-length (argmax string-length (cons "To" list-des))))
@@ -43,12 +47,14 @@
      "  "
      (number->string cost)
      "\n"))
-  (define main (foldr string-append "" (map combine list-ori list-des list-start list-end list-cost)))
+  (define main (foldr string-append 
+                      "" 
+                      (map combine list-ori list-des list-start list-end list-cost)))
   (string-append
    sep*
    "Number of intermediate stops : " (number->string (processed-path-stop-count pp)) "\n"
    "Total Price : $" (number->string (processed-path-cost pp)) "\n"
-   "Total Duration : " (number->string (processed-path-duration pp)) "\n\n"
+   "Total Duration : " (real->decimal-string (/ (processed-path-duration pp) 3600)) " hrs\n\n"
    (string-append (~a "From" #:min-width col1) "   " (~a "To" #:min-width col2)
                   "   Departure Time      Arrival Time        Cost\n")
    main))
@@ -59,7 +65,7 @@
   "========================================================================================\n")
 
 
-(printf
+#;(printf
  (pp->string (processed-path
   (path 'Boston 'Beijing
         (list (edge 'Boston 'Shanghai 980 1518127200 1518265800)
