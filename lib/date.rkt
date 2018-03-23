@@ -12,6 +12,13 @@
          racket/date)
 
 
+
+;; index of weekday in this list represents
+;; the offset of days when converted into seconds.
+(define-for-syntax weekdays
+  '(Mon Tue Wed Thr Fri Sat Sun))
+
+
 ;; Syntax Syntax -> Syntax
 ;; #'02/20/2018 #'20:00 -> #'53535321....
 (define (date-time->number date time)

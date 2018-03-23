@@ -18,14 +18,20 @@ we have not encountered any bugs so far.
 
   (provide 
     ;(except-out (all-from-out racket) #%module-begin)
+    submod
     (rename-out [mb #%module-begin]))
   
   (define-syntax mb
     (syntax-parser
-      [(_ e ...)
+      [(_ e)
        #'(#%module-begin 
           (provide database)
-          (define database '(1 2 3)))]))
+          (define database '(1 2 3)))]
+
+      [(_ file extra ...)
+      #'(#%module-begin
+         (require (submod ".." provider))
+         database)]))
   )
 
 
@@ -36,23 +42,22 @@ we have not encountered any bugs so far.
 
 
 (module macro racket
-  (provide (rename-out [mb #%module-begin])
-           require
-           submod)
+  (provide (rename-out [mb #%module-begin]))
   (require (for-syntax syntax/parse))
 
   (define-syntax mb
     (syntax-parser 
-      [(_ e ...) 
+      [(_ loc e ...) 
        ;#:with db (datum->syntax #'(e ...) 'database)
        #'(#%module-begin 
-          (require (submod ".." provider)) 
+          (require (submod ".." provider))
           database)])))
 
 ;; By requiring provider, the user module is able to access
 ;; the variable database, defined by the "mb" macro in lang
-(module user (submod ".." macro)
+(module user (submod ".." lang)
 ;  (require (submod ".." provider))
+  provider
   ahaha)
 
 (require 'user)

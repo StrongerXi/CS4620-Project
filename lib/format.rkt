@@ -65,6 +65,7 @@
   (string-append
    sep*
    "Number of intermediate stops : " (number->string (processed-path-stop-count pp)) "\n"
+   "Total WaitTime : " (real->decimal-string (/ (processed-path-wait-time pp) 3600)) "\n"
    "Total Price : $" (number->string (processed-path-cost pp)) "\n"
    "Total Duration : " (real->decimal-string (/ (processed-path-duration pp) 3600)) " hrs\n\n"
    header
