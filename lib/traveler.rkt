@@ -18,6 +18,7 @@
   duration
   go-through
   bypass
+  stop-count
   (rename-out [traveler-mb #%module-begin]))
 
 
@@ -41,7 +42,7 @@
   (syntax-parser
     #:datum-literals (data-from database plan)
     [(_ database city ...)
-     (check-origin-dups #'(city ...))
+     ;; (check-origin-dups #'(city ...))
      #'(#%module-begin
         (provide db)
         (define db
@@ -85,19 +86,24 @@
 
 (define-syntax make-plan 
   (syntax-parser
-    #:datum-literals (--> timezone)
+    #:datum-literals (--> timezone sortby)
     [(_ db 
         (name:id
           (ori -> des)
           (timezone ori-tz:number des-tz:number)
+          (sortby order option)
           conditional-clause 
           ...))
      (check-constraints #'(conditional-clause ...) #'ori)
+     (check-sortby-args #'order #'option)
+
      #'(begin
          (define paths (find-all-path 'ori 'des db 0))
          (define processed (lop->lopp paths ori-tz des-tz))
          (define filtered (filter-lopp processed (list conditional-clause ...)))
-         (define output (result 'name filtered))
+         (define sort-func (get-sort-func 'order 'option))
+         (define sorted (sort filtered sort-func))
+         (define output (result 'name sorted))
          (displayln (res->string output)))]))
          
 
@@ -105,28 +111,48 @@
 (define-for-syntax constraints '(bypass depart-time depart-date 
                                         arrive-time arrive-date
                                         wait-time duration price
-                                        go-through))
+                                        go-through stop-count))
+
+(define-for-syntax sort-options '(duration price wait-time stop-count))
 
 
-;; Syntax Syntax -> Void
-;; Check whether the constraint clauses are unique (no dups)
-;; and whether (first clause) is a member of constraints
-;; Raise syntax error if either fails
-(define-for-syntax (check-constraints stx ctx)
-  ;; List of Constraint Clause
-  (define loc (syntax->list stx))
+;; Symbol Symbol -> [Processed-Path Processed-Path -> Boolean]
+;; Return a function that can be taken in by the racket sort function
+;; to sort a list. In this case, the list of processed paths.
+(define (get-sort-func order option)
+  (define func 
+    (cond
+      [(equal? option 'duration)
+       (lambda (pp1 pp2) (< (processed-path-duration pp1)
+                            (processed-path-duration pp2)))]
+      [(equal? option 'price)
+       (lambda (pp1 pp2) (< (processed-path-cost pp1)
+                            (processed-path-cost pp2)))]
+      [(equal? option 'wait-time)
+       (lambda (pp1 pp2) (< (processed-path-wait-time pp1)
+                            (processed-path-wait-time pp2)))]
+      [(equal? option 'stop-count)
+       (lambda (pp1 pp2) (< (processed-path-stop-count pp1)
+                            (processed-path-stop-count pp2)))]
+      [else
+        (error "sortby option not recognized: " option)]))
 
-  ;; Check clause name (must be a member of constraints)
-  ;; This also ensures that each (syntax->datum clause) is a list
-  (map (λ (clause) 
-          (unless (and (list? (syntax->datum clause))
-                       (member (first (syntax->datum clause))
-                               constraints))
-            (raise-syntax-error #f "Constraint clause name not recognized" clause)))
-       loc)
+  (define output
+    (cond
+      [(equal? order '+) 
+       func]
+      [(equal? order '-)
+       (lambda (pp1 pp2)
+         (not (func pp1 pp2)))]
+      [else
+        (error "sortby order not recognized: " order)]))
+  
+  output)
 
-  (unless (not (check-duplicates (map first (syntax->datum stx))))
-    (raise-syntax-error #f "Constraint clauses in plan must have no duplicated type" ctx)))
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;; Constraint Clauses Syntax ;;;;;;;;;;;;;;;;;;;;;;
@@ -180,6 +206,14 @@
     #'(λ (pp) (< lower (pp-duration pp) upper))]))
 
 
+(define-syntax stop-count
+  (syntax-parser
+    #:datum-literals (~)
+    [(_ lower ~ upper)
+     (check-bounds #'lower #'upper #'start)
+     #'(λ (pp) (<= lower (processed-path-stop-count pp) upper))]))
+
+
 (define-syntax go-through
   (syntax-parser
     [(_ name ...)
@@ -193,6 +227,17 @@
     [(_ name ...)
      #'(λ (pp) (disjoint? (pp-cities pp) 
                           (list 'name ...)))]))
+
+
+
+(define-for-syntax (check-sortby-args order option)
+  (unless (member (syntax->datum option)
+                  sort-options)
+    (raise-syntax-error #f "Sortby option not recognized" option))
+
+  (unless (member (syntax->datum order)
+                  '(+ -))
+    (raise-syntax-error #f "Sortby order not recognized" order)))
 
 
 ;; Syntax -> Void
@@ -210,11 +255,31 @@
 ;; Syntax Syntax Syntax -> Void
 ;; Determine whether the given bounds are logical
 (define-for-syntax (check-bounds lower upper ctx)
-  (unless (> (syntax->datum upper)
-             (syntax->datum lower))
+  (unless (>= (syntax->datum upper)
+              (syntax->datum lower))
     (raise-syntax-error #f
                         "Illogical constraint, upper bound must be later than lower bound"
                          ctx)))
 
 
+
+;; Syntax Syntax -> Void
+;; Check whether the constraint clauses are unique (no dups)
+;; and whether (first clause) is a member of constraints
+;; Raise syntax error if either fails
+(define-for-syntax (check-constraints stx ctx)
+  ;; List of Constraint Clause
+  (define loc (syntax->list stx))
+
+  ;; Check clause name (must be a member of constraints)
+  ;; This also ensures that each (syntax->datum clause) is a list
+  (map (λ (clause) 
+          (unless (and (list? (syntax->datum clause))
+                       (member (first (syntax->datum clause))
+                               constraints))
+            (raise-syntax-error #f "Constraint clause name not recognized" clause)))
+       loc)
+
+  (unless (not (check-duplicates (map first (syntax->datum stx))))
+    (raise-syntax-error #f "Constraint clauses in plan must have no duplicated type" ctx)))
 

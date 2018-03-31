@@ -28,12 +28,15 @@ Traveler language is intended for flight plan arrangement. To use the language, 
 
 @subsection{Plan-Specification Grammar}
 @(racketgrammar*
-   #:literals (data-from plan depart-time depart-date wait-time price duration timezone)
+   #:literals (data-from plan depart-time depart-date wait-time stop-count price duration timezone sortby)
    [plan-specs (data-from string) plan-clause ...]
    [plan-clause (plan (id --> id)
                       (timezone number number)
+                      (sortby order option)
                       constraint 
                       ...)]
+   [order - +]
+   [option duration price wait-time stop-count]
    [constraint (depart-time time ~ time)
                (depart-date date ~ date)
                (wait-time number ~ number)
@@ -49,6 +52,10 @@ Traveler language is intended for flight plan arrangement. To use the language, 
 
 database
 
+;; UA1105 is a flight from Boston to Shanghai, 
+;; departing at 17:00 on Feb. 08. 2018,
+;; arriving at 7:30 on Feb. 10. 2018,
+;; costing 980$.
 (Boston (UA1105 17:00 02/08/2018 7:30  02/10/2018 980  Shanghai)
         (SA207  19:00 02/09/2018 13:00 02/10/2018 1500 Beijing))
 (Shanghai (SC770  20:30 02/11/2018 0:30  02/12/2018 300 Beijing)
@@ -68,6 +75,7 @@ database
 (plan myPlan
       (Boston --> Beijing)
       (timezone -4 +8)
+      (sortby + duration)
       (depart-time 10:30 ~ 20:00)
       (depart-date 02/09/2018 ~ 02/10/2018)
       (wait-time 0 ~ 5)
@@ -85,17 +93,17 @@ origin to destination that satisfies the all of the constraints. Print out the f
 @defform[(timezone number number)]
 Specifies the origin and destination timezone within a plan requirement.
 
-@defform[(depart-time number number)]
+@defform[(depart-time time ~ time)]
 Specifies departure time constraint within a plan requirement
 
-@defform[(depare-date number number)]
+@defform[(depare-date date ~ date)]
 Specifies departure date constraint within a plan requirement
 
-@defform[(wait-time number number)]
+@defform[(wait-time number ~ number)]
 Specifies constraint for total amount of time spent waiting in between flights within a plan requirement
 
-@defform[(price number number)]
+@defform[(price number ~ number)]
 Specifies price constraint range within a plan requirement
 
-@defform[(duration number number)]
+@defform[(duration number ~ number)]
 Specifies constraint for total amount of time spent flying within a plan requirement
