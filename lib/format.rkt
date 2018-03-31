@@ -13,15 +13,21 @@
 ;; Result -> String
 ;; stringify the plan Result as final output of a traveler program
 (define (res->string res)
-  (string-append
-   sep=
-   (symbol->string (result-name res))
-   (foldr (λ (pp str) 
-             (string-append str "\n" 
-                            (pp->string pp)))
-          "" 
-          (result-lop res))
-   sep=))
+  (if
+   (empty? (result-lop res))
+   (string-append
+    sep=
+    (symbol->string (result-name res))
+    ": No plans found with these constraints in the database\n"
+    sep=)
+   (string-append
+    sep=
+    (symbol->string (result-name res))
+    (foldr
+     (λ (pp str) (string-append(pp->string pp) "\n" str))
+     "" 
+     (result-lop res))
+    sep=)))
 
 
 ;; Processed-Path -> String

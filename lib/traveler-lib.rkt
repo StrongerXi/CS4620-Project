@@ -7,7 +7,10 @@
          lop->lopp
          filter-lopp
          pp-depart-time
-         pp-depart-timedate)
+         pp-depart-timedate
+         pp-price
+         pp-duration
+         pp-wait-time)
 
 
 
