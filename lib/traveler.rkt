@@ -94,7 +94,7 @@
           (sortby order option)
           conditional-clause 
           ...))
-     (check-constraints #'(conditional-clause ...) #'ori)
+     (check-constraints #'(conditional-clause ...) #'name)
      (check-sortby-args #'order #'option)
 
      #'(begin
@@ -104,6 +104,21 @@
          (define sort-func (get-sort-func 'order 'option))
          (define sorted (sort filtered sort-func))
          (define output (result 'name sorted))
+         (displayln (res->string output)))]
+
+    [(_ db 
+        (name:id
+          (ori -> des)
+          (timezone ori-tz:number des-tz:number)
+          conditional-clause 
+          ...))
+     (check-constraints #'(conditional-clause ...) #'name)
+
+     #'(begin
+         (define paths (find-all-path 'ori 'des db 0))
+         (define processed (lop->lopp paths ori-tz des-tz))
+         (define filtered (filter-lopp processed (list conditional-clause ...)))
+         (define output (result 'name filtered))
          (displayln (res->string output)))]))
          
 
@@ -282,4 +297,7 @@
 
   (unless (not (check-duplicates (map first (syntax->datum stx))))
     (raise-syntax-error #f "Constraint clauses in plan must have no duplicated type" ctx)))
+
+
+
 

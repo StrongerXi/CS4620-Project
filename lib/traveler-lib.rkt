@@ -5,10 +5,13 @@
          "structs.rkt")
 (provide find-all-path
          lop->lopp
+         sublist?
+         disjoint?
          filter-lopp
          pp-depart-time
          pp-depart-timedate
          pp-price
+         pp-cities
          pp-duration
          pp-wait-time)
 
