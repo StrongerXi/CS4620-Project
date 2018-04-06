@@ -18,7 +18,7 @@
     (string-append
       sep=
       (symbol->string (result-name res))
-      ": No plans found with these constraints in the database\n"
+      (format ": No plans found for plan <~a> in the database\n" (result-name res))
       sep=)
     (string-append
       sep=
@@ -37,6 +37,10 @@
   ;; the list of edges for this path
   (define path (path-loe (processed-path-path pp)))
   ;; the length of the first column
+  (define col0 (string-length
+                 (argmax string-length
+                         (cons "Flight"
+                               (map (λ (p) (symbol->string (edge-id p))) path)))))
   (define col1 (string-length
                  (argmax string-length
                          (cons "From"
@@ -50,6 +54,8 @@
   ;; makes a string for the edge
   (define (combine e)
     (string-append
+      (~a (edge-id e) #:min-width col0)
+      "   "
       (~a (edge-from e) #:min-width col1)
       "   "
       (~a (edge-to e) #:min-width col2)
@@ -66,7 +72,11 @@
                       "" 
                       (map combine path)))
   ;; the header column for the table
-  (define header (string-append (~a "From" #:min-width col1) "   " (~a "To" #:min-width col2)
+  (define header (string-append (~a "Flight" #:min-width col0)
+                                "   "
+                                (~a "From" #:min-width col1) 
+                                "   " 
+                                (~a "To" #:min-width col2)
                                 "   Departure Time      Arrival Time        Cost\n"))
   ;; finally append all the data
   (string-append

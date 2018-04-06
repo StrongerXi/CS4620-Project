@@ -28,7 +28,8 @@ Traveler language is intended for flight plan arrangement. To use the language, 
 
 @subsection{Plan-Specification Grammar}
 @(racketgrammar*
-   #:literals (data-from plan depart-time depart-date wait-time stop-count price duration timezone sortby)
+   #:literals (data-from plan depart-time depart-date wait-time stop-count price duration timezone sortby
+               go-through bypass)
    [plan-specs (data-from string) plan-clause ...]
    [plan-clause (plan (id --> id)
                       (timezone number number)
@@ -41,7 +42,10 @@ Traveler language is intended for flight plan arrangement. To use the language, 
                (depart-date date ~ date)
                (wait-time number ~ number)
                (price number ~ number)
-               (duration number ~ number)])
+               (duration number ~ number)
+               (stop-count number ~ number)
+               (go-through id ...)
+               (bypass id ...)])
 
 
 
@@ -93,17 +97,30 @@ origin to destination that satisfies the all of the constraints. Print out the f
 @defform[(timezone number number)]
 Specifies the origin and destination timezone within a plan requirement.
 
+@defform[(sortby order option)]
+Specifies the measure to sort all viable paths within a plan; 
+- for decreasing order, and + for increasing order.
+
 @defform[(depart-time time ~ time)]
-Specifies departure time constraint within a plan requirement
+Specifies inclusive departure time constraint within a plan requirement
 
 @defform[(depare-date date ~ date)]
-Specifies departure date constraint within a plan requirement
+Specifies inclusive departure date constraint within a plan requirement
 
 @defform[(wait-time number ~ number)]
-Specifies constraint for total amount of time spent waiting in between flights within a plan requirement
+Specifies inclusive constraint for total amount of time spent waiting in between flights within a plan requirement
 
 @defform[(price number ~ number)]
-Specifies price constraint range within a plan requirement
+Specifies inclusive price constraint range within a plan requirement
 
 @defform[(duration number ~ number)]
-Specifies constraint for total amount of time spent flying within a plan requirement
+Specifies inclusive constraint for total amount of time spent flying within a plan requirement
+
+@defform[(stop-count number ~ number)]
+Specifies inclusive constraint for total number of intermediate stops within a plan requirement
+
+@defform[(go-through id ...)]
+Specifies a set of cities that must all be included within a plan.
+
+@defform[(bypass id ...)]
+Specifies a set of cities that must not appear within a plan.

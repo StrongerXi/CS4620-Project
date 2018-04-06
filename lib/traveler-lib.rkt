@@ -34,10 +34,10 @@ B -> C 70 600 750
 
 
 |#
-(define A (node 'A (list (edge 'A 'B 100 500 700)
-                         (edge 'A 'B 150 400 610))))
-(define B (node 'B (list (edge 'B 'C 30 800 950)
-                         (edge 'B 'C 70 550 750))))
+(define A (node 'A (list (edge 'ab1 'A 'B 100 500 700)
+                         (edge 'ab2 'A 'B 150 400 610))))
+(define B (node 'B (list (edge 'bc1 'B 'C 30 800 950)
+                         (edge 'bc2 'B 'C 70 550 750))))
 (define C (node 'C '()))
 (define sample-G (graph (list A B C)))
 

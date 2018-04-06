@@ -12,8 +12,9 @@
 ;; A Graph is a (graph Symbol [List-of Node] Boolean)
 (struct node [name edges] #:transparent)
 ;; A Node is a (node Symbol [List-of Edge]))
-(struct edge [from to cost start end] #:transparent)
+(struct edge [id from to cost start end] #:transparent)
 ;; An Edge is a (edge Symbol Number Number Number)
+;; id represents the id number of the flight
 ;; to represents the destination of this edge
 ;; cost represents the monetary cost of this route/edge
 ;; start represents the starting timedate (converted to a single number)

@@ -42,7 +42,7 @@
   (syntax-parser
     #:datum-literals (data-from database plan)
     [(_ database city ...)
-     ;; (check-origin-dups #'(city ...))
+     (check-origin-dups #'(city ...))
      #'(#%module-begin
         (provide db)
         (define db
@@ -55,11 +55,10 @@
      ;; which had a user-side scope. 
      ;; Now the db introduced in template can be associated with the
      ;; db provided in file because they have the same scope set.
-     #:with foo (datum->syntax #'nomatter (syntax-e #'file))
+     #:with dataFile (datum->syntax #'nomatter (syntax-e #'file))
 
      #'(#%module-begin
-        (require foo)
-        ;(module->exports 'file)
+        (require dataFile)
         (make-plan db (pe ...))
         ...)]))
 
@@ -81,7 +80,7 @@
         (id depart-time depart-date arrive-time arrive-date cost des))
      #:with start (date-time->number #'depart-date #'depart-time)
      #:with end (date-time->number #'arrive-date #'arrive-time)
-     #'(edge 'ori 'des cost start end)]))
+     #'(edge 'id 'ori 'des cost start end)]))
 
 
 (define-syntax make-plan 
@@ -124,7 +123,6 @@
 
 
 (define-for-syntax constraints '(bypass depart-time depart-date 
-                                        arrive-time arrive-date
                                         wait-time duration price
                                         go-through stop-count))
 
@@ -173,59 +171,59 @@
 ;;;;;;;;;;;;;;;;;;;;;; Constraint Clauses Syntax ;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;; ;;;;;;;;;;;;;;;;;;;;;;
 
-(define-syntax depart-time
-  (syntax-parser
+(define-syntax (depart-time stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ start ~ end)
     #:with lower (time->seconds #'start)
     #:with upper (time->seconds #'end)
-    (check-bounds #'lower #'upper #'start)
-    #'(λ (pp) (< lower (pp-depart-time pp) upper))]))
+    (check-bounds #'lower #'upper stx)
+    #'(λ (pp) (<= lower (pp-depart-time pp) upper))]))
 
 
-(define-syntax depart-date
-  (syntax-parser
+(define-syntax (depart-date stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ start ~ end)
     #:with lower (date->seconds #'start)
     #:with upper (increment-day (date->seconds #'end))
-    (check-bounds #'lower #'upper #'start)
-    #'(λ (pp) (< lower (pp-depart-timedate pp) upper))]))
+    (check-bounds #'lower #'upper stx)
+    #'(λ (pp) (<= lower (pp-depart-timedate pp) upper))]))
 
 
-(define-syntax wait-time
-  (syntax-parser
+(define-syntax (wait-time stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ start ~ end)
     #:with lower (hour->seconds #'start)
     #:with upper (hour->seconds #'end)
-    (check-bounds #'lower #'upper #'start)
-    #'(λ (pp) (< lower (pp-wait-time pp) upper))]))
+    (check-bounds #'lower #'upper stx)
+    #'(λ (pp) (<= lower (pp-wait-time pp) upper))]))
 
 
-(define-syntax price
-  (syntax-parser
+(define-syntax (price stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ lower ~ upper)
-    (check-bounds #'lower #'upper #'lower)
-    #'(λ (pp) (< lower (pp-price pp) upper))]))
+    (check-bounds #'lower #'upper stx)
+    #'(λ (pp) (<= lower (pp-price pp) upper))]))
 
 
-(define-syntax duration
-  (syntax-parser
+(define-syntax (duration stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ start ~ end)
     #:with lower (hour->seconds #'start)
     #:with upper (hour->seconds #'end)
-    (check-bounds #'lower #'upper #'start)
-    #'(λ (pp) (< lower (pp-duration pp) upper))]))
+    (check-bounds #'lower #'upper stx)
+    #'(λ (pp) (<= lower (pp-duration pp) upper))]))
 
 
-(define-syntax stop-count
-  (syntax-parser
+(define-syntax (stop-count stx)
+  (syntax-parse stx
     #:datum-literals (~)
     [(_ lower ~ upper)
-     (check-bounds #'lower #'upper #'start)
+     (check-bounds #'lower #'upper stx)
      #'(λ (pp) (<= lower (processed-path-stop-count pp) upper))]))
 
 
@@ -234,7 +232,6 @@
     [(_ name ...)
      #'(λ (pp) (sublist? (list 'name ...)
                          (pp-cities pp)))]))
-
 
 
 (define-syntax bypass
